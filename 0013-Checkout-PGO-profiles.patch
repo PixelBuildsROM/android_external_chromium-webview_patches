@@ -1,5 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: fgei <fgei@gmail.com>
+From: quh4gko8 <88831734+quh4gko8@users.noreply.github.com>
 Date: Wed, 24 Jan 2024 11:22:54 +0000
 Subject: [PATCH] Checkout PGO profiles
 
@@ -8,10 +8,10 @@ Subject: [PATCH] Checkout PGO profiles
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/DEPS b/DEPS
-index 9f701b554e29d..0aa40bdbbec70 100644
+index a402586e809ee..e9594b95fc2a5 100644
 --- a/DEPS
 +++ b/DEPS
-@@ -164,7 +164,7 @@ vars = {
+@@ -160,7 +160,7 @@ vars = {
    'checkout_clang_coverage_tools': False,
  
    # Fetch the pgo profiles to optimize official builds.
@@ -20,3 +20,4 @@ index 9f701b554e29d..0aa40bdbbec70 100644
  
    # Fetch clang-tidy into the same bin/ directory as our clang binary.
    'checkout_clang_tidy': False,
+
