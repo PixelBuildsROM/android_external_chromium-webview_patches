@@ -1,4 +1,4 @@
-From a6535f1839e41ea2e22ded546d3b6b8129464bc1 Mon Sep 17 00:00:00 2001
+From f7c8c1cfa3099c729634a28247553cb8155001d8 Mon Sep 17 00:00:00 2001
 From: Daniel Micay <danielmicay@gmail.com>
 Date: Thu, 10 Dec 2020 10:09:18 -0500
 Subject: [PATCH 06/12] disable WebView variations support
@@ -9,10 +9,10 @@ Subject: [PATCH 06/12] disable WebView variations support
  2 files changed, 11 deletions(-)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-index 8d3244586d334..4991faeca811c 100644
+index 1dfbbca9ec1b8..1a7ce8ccf6d09 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumAwInit.java
-@@ -667,13 +667,6 @@ public class WebViewChromiumAwInit {
+@@ -664,13 +664,6 @@ public class WebViewChromiumAwInit {
                      }
  
                      AwBrowserProcess.configureChildProcessLauncher();
@@ -27,10 +27,10 @@ index 8d3244586d334..4991faeca811c 100644
  
          addBrowserProcessStartTasksToQueue(
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-index 41326580256e4..6ea7d3e52d75d 100644
+index ed4a0a7e1064d..3946199d3fcb8 100644
 --- a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
 +++ b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromiumFactoryProvider.java
-@@ -687,10 +687,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
+@@ -661,10 +661,6 @@ public class WebViewChromiumFactoryProvider implements WebViewFactoryProvider {
              // This must happen after pref value has been read and SafeMode setup has completed.
              setupStartupTaskExperiments(androidXConfig);
  

@@ -1,4 +1,4 @@
-From f12600a389b8b2ac0dc9af556c41c3e57294401f Mon Sep 17 00:00:00 2001
+From 68a47226c07e4e73fb9c4dab685e7423deaf10ad Mon Sep 17 00:00:00 2001
 From: Danny Baumann <dannybaumann@web.de>
 Date: Thu, 18 May 2017 11:04:40 +0200
 Subject: [PATCH 01/12] Add support for getting updates for theme color
@@ -9,9 +9,9 @@ Subject: [PATCH 01/12] Add support for getting updates for theme color
  .../WebViewContentsClientAdapter.java         | 34 +++++++++++++++++++
  .../android_webview/AwContentsClient.java     |  2 ++
  .../AwContentsClientCallbackHelper.java       | 12 +++++++
- .../AwWebContentsObserver.java                | 14 ++++++++
+ .../AwWebContentsObserver.java                | 15 ++++++++
  .../test/NullContentsClient.java              |  4 +++
- 6 files changed, 74 insertions(+)
+ 6 files changed, 75 insertions(+)
 
 diff --git a/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromium.java b/android_webview/glue/java/src/com/android/webview/chromium/WebViewChromium.java
 index b6465dce3dc4f..52505fc15ac88 100644
@@ -156,14 +156,15 @@ index 96f87025ed2e3..553ff1276c03f 100644
          DoUpdateVisitedHistoryInfo info = new DoUpdateVisitedHistoryInfo(url, isReload);
          mHandler.sendMessage(mHandler.obtainMessage(MSG_DO_UPDATE_VISITED_HISTORY, info));
 diff --git a/android_webview/java/src/org/chromium/android_webview/AwWebContentsObserver.java b/android_webview/java/src/org/chromium/android_webview/AwWebContentsObserver.java
-index b6e39de790ef8..f4c6ec8850121 100644
+index 74a0764a682f8..75159880c20f4 100644
 --- a/android_webview/java/src/org/chromium/android_webview/AwWebContentsObserver.java
 +++ b/android_webview/java/src/org/chromium/android_webview/AwWebContentsObserver.java
-@@ -319,6 +319,13 @@ public class AwWebContentsObserver extends WebContentsObserver
+@@ -233,6 +233,14 @@ public class AwWebContentsObserver extends WebContentsObserver {
                      });
          }
  
 +        if (client != null) {
++            AwContents awContents = mAwContents.get();
 +            WebContents contents = awContents != null ? awContents.getWebContents() : null;
 +            if (contents != null) {
 +                client.getCallbackHelper().postOnThemeColorChanged(contents.getThemeColor());
@@ -173,7 +174,7 @@ index b6e39de790ef8..f4c6ec8850121 100644
          if (client != null && navigation.isPrimaryMainFrameFragmentNavigation()) {
              // Note fragment navigations do not have a matching onPageStarted.
              client.getCallbackHelper().postOnPageFinished(url);
-@@ -346,6 +353,13 @@ public class AwWebContentsObserver extends WebContentsObserver
+@@ -251,6 +259,13 @@ public class AwWebContentsObserver extends WebContentsObserver {
          }
      }
  
