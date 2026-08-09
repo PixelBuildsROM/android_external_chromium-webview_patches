@@ -1,0 +1,38 @@
+From ea773caaa18c2989971549ef3a555f14c190d06b Mon Sep 17 00:00:00 2001
+From: "Kevin F. Haggerty" <haggertk@lineageos.org>
+Date: Sat, 27 Jun 2026 10:56:53 -0600
+Subject: [PATCH 13/13] android: Don't unconditionally include dev_ui in
+ chrome/browser:core
+
+---
+ chrome/browser/BUILD.gn | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
+index bfc8555485593..a782429a326ac 100644
+--- a/chrome/browser/BUILD.gn
++++ b/chrome/browser/BUILD.gn
+@@ -1636,7 +1636,6 @@ source_set("core") {
+       "//chrome/browser/commerce",
+       "//chrome/browser/commerce/android:shopping_service_jni",
+       "//chrome/browser/composeplate/android:jni_headers",
+-      "//chrome/browser/dev_ui",
+       "//chrome/browser/facilitated_payments",
+       "//chrome/browser/feed",
+       "//chrome/browser/flags:flags_android",
+@@ -1672,6 +1671,12 @@ source_set("core") {
+       "//services/webnn/public/mojom:features",
+       "//ui/compositor",
+     ]
++
++    if (dfmify_dev_ui) {
++      deps += [
++        "//chrome/browser/dev_ui",
++      ]
++    }
+   }
+ 
+   if (enable_offline_pages) {
+-- 
+2.53.0
+
