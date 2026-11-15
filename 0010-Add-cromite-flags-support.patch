@@ -254,7 +254,7 @@ index ef23e1a8092eb..cfe3423d80968 100644
      @GuardedBy("sStringValues")
      private static final Map<String, String> sStringValues = new HashMap<>();
 diff --git a/base/feature.h b/base/feature.h
-index be01a04d8d7f8..ca9a1c9001560 100644
+index 9053669fa6366..95b6d9748a93a 100644
 --- a/base/feature.h
 +++ b/base/feature.h
 @@ -7,7 +7,9 @@
@@ -267,7 +267,7 @@ index be01a04d8d7f8..ca9a1c9001560 100644
  
  #include "base/base_export.h"
  #include "base/compiler_specific.h"
-@@ -226,12 +228,16 @@ struct BASE_EXPORT LOGICALLY_CONST Feature {
+@@ -227,12 +229,16 @@ struct BASE_EXPORT LOGICALLY_CONST Feature {
    constexpr Feature(const char* name,
                      FeatureState default_state,
                      bool is_runtime_mutable,
@@ -286,7 +286,7 @@ index be01a04d8d7f8..ca9a1c9001560 100644
  
    // Non-copyable since:
    // - there should be only one `Feature` instance per unique name.
-@@ -260,6 +266,9 @@ struct BASE_EXPORT LOGICALLY_CONST Feature {
+@@ -261,6 +267,9 @@ struct BASE_EXPORT LOGICALLY_CONST Feature {
    // command line switch.
    const FeatureState default_state;
  
@@ -296,7 +296,7 @@ index be01a04d8d7f8..ca9a1c9001560 100644
   protected:
    // Base constructor that performs initialization and checks, with an option to
    // bypass the country-specific state check for subclasses.
-@@ -267,9 +276,13 @@ struct BASE_EXPORT LOGICALLY_CONST Feature {
+@@ -268,9 +277,13 @@ struct BASE_EXPORT LOGICALLY_CONST Feature {
                      FeatureState default_state,
                      bool is_runtime_mutable,
                      internal::FeatureMacroHandshake handshake,
@@ -311,7 +311,7 @@ index be01a04d8d7f8..ca9a1c9001560 100644
          cached_value(is_runtime_mutable ? kRuntimeMutabilityMask : 0) {
      if (is_country_specific != IsCountrySpecificFeatureState(default_state)) {
        LOG(FATAL) << "Pass a country-specific default state if and only if you "
-@@ -355,7 +368,9 @@ struct BASE_EXPORT LOGICALLY_CONST FeatureWithCountryRestriction
+@@ -356,7 +369,9 @@ struct BASE_EXPORT LOGICALLY_CONST FeatureWithCountryRestriction
                  feature_default_state,
                  /*is_runtime_mutable=*/false,
                  handshake,
@@ -322,7 +322,7 @@ index be01a04d8d7f8..ca9a1c9001560 100644
          countries(countries_list) {}
  
    FeatureWithCountryRestriction(const FeatureWithCountryRestriction&) = delete;
-@@ -370,4 +385,88 @@ struct BASE_EXPORT LOGICALLY_CONST FeatureWithCountryRestriction
+@@ -371,4 +386,88 @@ struct BASE_EXPORT LOGICALLY_CONST FeatureWithCountryRestriction
  
  }  // namespace base
  
@@ -415,7 +415,7 @@ diff --git a/base/feature_list.cc b/base/feature_list.cc
 index 6ae9d0d2a482b..879ae9463f6f7 100644
 --- a/base/feature_list.cc
 +++ b/base/feature_list.cc
-@@ -43,6 +43,31 @@
+@@ -46,6 +46,31 @@
  
  namespace base {
  
@@ -511,7 +511,7 @@ index 6ae9d0d2a482b..879ae9463f6f7 100644
 +  }
    // Store the field trial list pointer for DCHECKing.
    field_trial_list_ = FieldTrialList::GetInstance();
-   initialized_ = true;
+   BuildTrialToFeaturesIndex();
 diff --git a/base/feature_list.h b/base/feature_list.h
 index c7908af87433f..455198d964868 100644
 --- a/base/feature_list.h
@@ -604,7 +604,7 @@ index d6524eb726dc9..e026c0435a313 100644
  
          mPageTitle.set(getString(R.string.options_homepage_title));
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 1b5d10dbf1aa0..3c805a378de24 100644
+index 512f512a828d6..a6e902f77d5b2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 @@ -138,7 +138,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
@@ -628,15 +628,15 @@ index 446b968619275..bfcba67784745 100644
  import org.chromium.base.supplier.MonotonicObservableSupplier;
  import org.chromium.base.supplier.OneshotSupplier;
  import org.chromium.build.annotations.NullMarked;
-@@ -79,6 +80,7 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
+@@ -80,6 +81,7 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
      // TODO(crbug.com/469772349): Simplify to Supplier<@Nullable ModalDialogManagerSupplier>
      private final MonotonicObservableSupplier<ModalDialogManager> mModalDialogManagerSupplier;
      private final Supplier<@Nullable SettingsSearchCoordinator> mSearchCoordinatorSupplier;
 +    private final Supplier<ChromeBaseSettingsFragment.RequireRestartDelegate> mRequireRestartDelegateSupplier;
  
-     public FragmentDependencyProvider(
-             Activity activity,
-@@ -88,7 +90,8 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
+     /**
+      * Whether settings is being shown in a tab. Injected by the host so that the value stays
+@@ -97,7 +99,8 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
              OneshotSupplier<SnackbarManager> snackbarManagerSupplier,
              OneshotSupplier<BottomSheetController> bottomSheetControllerSupplier,
              MonotonicObservableSupplier<ModalDialogManager> modalDialogManagerSupplier,
@@ -644,9 +644,9 @@ index 446b968619275..bfcba67784745 100644
 +            Supplier<@Nullable SettingsSearchCoordinator> searchCoordinatorSupplier,
 +            Supplier<ChromeBaseSettingsFragment.RequireRestartDelegate> requireRestartDelegateSupplier) {
          mActivity = activity;
+         mShownInTab = shownInTab;
          mProfile = profile;
-         mWindowAndroidSupplier = windowAndroidSupplier;
-@@ -97,6 +100,7 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
+@@ -107,6 +110,7 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
          mBottomSheetControllerSupplier = bottomSheetControllerSupplier;
          mModalDialogManagerSupplier = modalDialogManagerSupplier;
          mSearchCoordinatorSupplier = searchCoordinatorSupplier;
@@ -654,7 +654,7 @@ index 446b968619275..bfcba67784745 100644
      }
  
      @Override
-@@ -108,6 +112,10 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
+@@ -118,6 +122,10 @@ public class FragmentDependencyProvider extends FragmentManager.FragmentLifecycl
      /** Attaches dependencies to a fragment. */
      public void attachDependencies(FragmentManager fragmentManager, Fragment fragment) {
          // Common dependencies attachments.
@@ -757,7 +757,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/Settin
 index 34058c208948b..9a72ffe3eb5f2 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsHostFragment.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsHostFragment.java
-@@ -237,7 +237,7 @@ public class SettingsHostFragment extends Fragment
+@@ -272,7 +272,7 @@ public class SettingsHostFragment extends Fragment
                  snackbarSupplier,
                  bottomSheetSupplier,
                  modalDialogSupplier,
@@ -770,7 +770,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/Settin
 index ffe93b61a0ff7..6e1a67c3f0bb6 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsPageFragmentDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsPageFragmentDelegateImpl.java
-@@ -244,7 +244,8 @@ public class SettingsPageFragmentDelegateImpl
+@@ -269,7 +269,8 @@ public class SettingsPageFragmentDelegateImpl
                          snackbarSupplier,
                          bottomSheetSupplier,
                          mModalDialogSupplier,
@@ -778,8 +778,8 @@ index ffe93b61a0ff7..6e1a67c3f0bb6 100644
 +                        () -> mSearchCoordinator,
 +                        () -> null);
  
-         mSettingsHostFragment =
-                 (SettingsHostFragment) fragmentManager.findFragmentByTag(mFragmentTag);
+         if (ChromeFeatureList.sSettingsInTabUrlNav.isEnabled()) {
+             mSettingsNavigationDelegate = new SettingsInTabNavigationDelegate(mTab);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tracing/settings/DeveloperSettings.java b/chrome/android/java/src/org/chromium/chrome/browser/tracing/settings/DeveloperSettings.java
 index fc8ecbcf1ce8d..30cfb27a70210 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tracing/settings/DeveloperSettings.java
@@ -1026,7 +1026,7 @@ index 0000000000000..3355066539d9f
 +
 +}}
 diff --git a/chrome/browser/settings/android/java/src/org/chromium/chrome/browser/settings/ChromeBaseSettingsFragment.java b/chrome/browser/settings/android/java/src/org/chromium/chrome/browser/settings/ChromeBaseSettingsFragment.java
-index 2854c72245be4..6adf1525eaf1f 100644
+index 6635173432a83..d8030d409291b 100644
 --- a/chrome/browser/settings/android/java/src/org/chromium/chrome/browser/settings/ChromeBaseSettingsFragment.java
 +++ b/chrome/browser/settings/android/java/src/org/chromium/chrome/browser/settings/ChromeBaseSettingsFragment.java
 @@ -25,6 +25,14 @@ import org.chromium.components.browser_ui.settings.EmbeddableSettingsPage;
@@ -1319,7 +1319,7 @@ index 78965d6c63bb2..55247fbde0150 100644
      public static Map<String, CachedFlag> createCachedFlagMap(
              List<List<CachedFlag>> allCachedFlagsLists) {
 diff --git a/components/components_strings.grd b/components/components_strings.grd
-index 1aafaf3a3e4e1..a8cd195b62422 100644
+index 20e017ea86d0b..a1a35c53077b0 100644
 --- a/components/components_strings.grd
 +++ b/components/components_strings.grd
 @@ -282,6 +282,7 @@
@@ -1349,22 +1349,22 @@ index 0000000000000..5174b09c2273b
 @@ -0,0 +1 @@
 +this file is intentionally empty
 diff --git a/components/offline_pages/core/offline_page_feature.cc b/components/offline_pages/core/offline_page_feature.cc
-index 16c29147cf818..223eea04a1db0 100644
+index 620d597c9df26..cd26de83fa7f8 100644
 --- a/components/offline_pages/core/offline_page_feature.cc
 +++ b/components/offline_pages/core/offline_page_feature.cc
-@@ -47,4 +47,5 @@ bool IsOfflinePagesNetworkStateLikelyUnknown() {
-   return base::FeatureList::IsEnabled(kOfflinePagesNetworkStateLikelyUnknown);
+@@ -41,4 +41,5 @@ bool IsOnTheFlyMhtmlHashComputationEnabled() {
  }
+ 
  
 +#include "cromite_flags/components_offline_pages_core_offline_page_feature_cc.inc"
  }  // namespace offline_pages
 diff --git a/components/offline_pages/core/offline_page_feature.h b/components/offline_pages/core/offline_page_feature.h
-index 4ba9bc80778ab..8d5198dea6d79 100644
+index e97c7728d2b99..152eb7c75c16d 100644
 --- a/components/offline_pages/core/offline_page_feature.h
 +++ b/components/offline_pages/core/offline_page_feature.h
-@@ -42,6 +42,7 @@ bool IsOnTheFlyMhtmlHashComputationEnabled();
- // offline pages to avoid showing them even when the device is online.
- bool IsOfflinePagesNetworkStateLikelyUnknown();
+@@ -37,6 +37,7 @@ std::string GetPrefetchingOfflinePagesExperimentTag();
+ bool IsOnTheFlyMhtmlHashComputationEnabled();
+ 
  
 +#include "cromite_flags/components_offline_pages_core_offline_page_feature_h.inc"
  }  // namespace offline_pages
@@ -1535,12 +1535,12 @@ index 1d89b275465b8..2adb43faa7593 100644
  
      if (entry->type == FeatureEntry::FEATURE_VALUE ||
 diff --git a/components/webui/flags/resources/app.css b/components/webui/flags/resources/app.css
-index 9e7cfc8d38a49..8c11f739ee93f 100644
+index 1e42b9bb58eff..051b32f425932 100644
 --- a/components/webui/flags/resources/app.css
 +++ b/components/webui/flags/resources/app.css
-@@ -408,3 +408,35 @@ cr-tabs {
- .actions-container cr-icon-button {
-   margin-inline-start: 8px;
+@@ -417,3 +417,35 @@ cr-toast {
+ .dropdown-item:hover {
+   background-color: var(--cr-hover-background-color);
  }
 +
 +#appcontainer {
@@ -1575,7 +1575,7 @@ index 9e7cfc8d38a49..8c11f739ee93f 100644
 +  display: none;
 +}
 diff --git a/components/webui/flags/resources/app.html.ts b/components/webui/flags/resources/app.html.ts
-index bbf3b825cac13..90a8c3ec40dea 100644
+index 9e16b140a9b1a..ac126f250519d 100644
 --- a/components/webui/flags/resources/app.html.ts
 +++ b/components/webui/flags/resources/app.html.ts
 @@ -9,6 +9,7 @@ import type {AppElement} from './app.js';
@@ -1586,7 +1586,7 @@ index bbf3b825cac13..90a8c3ec40dea 100644
  <div id="header">
    <div class="flex-container">
      <div class="flex search-container">
-@@ -141,6 +142,32 @@ export function getHtml(this: AppElement) {
+@@ -149,6 +150,32 @@ export function getHtml(this: AppElement) {
          <div class="no-match" role="alert" hidden>$i18n{no-results}</div>
        </div>
  </if>
@@ -1619,7 +1619,7 @@ index bbf3b825cac13..90a8c3ec40dea 100644
      </div>
      <div id="needs-restart" ?show="${this.needsRestart}"
          role="${this.getNeedsRestartRole_()}">
-@@ -161,6 +188,7 @@ export function getHtml(this: AppElement) {
+@@ -169,6 +196,7 @@ export function getHtml(this: AppElement) {
      </div>
    </div>
  </div>
@@ -1628,10 +1628,10 @@ index bbf3b825cac13..90a8c3ec40dea 100644
    // clang-format on
  }
 diff --git a/components/webui/flags/resources/app.ts b/components/webui/flags/resources/app.ts
-index e4ddc108198db..0f47ebda9cdcb 100644
+index 0cb2ee44a7af7..a2f0bd88e8016 100644
 --- a/components/webui/flags/resources/app.ts
 +++ b/components/webui/flags/resources/app.ts
-@@ -175,6 +175,7 @@ export class FlagsAppElement extends CrLitElement {
+@@ -163,6 +163,7 @@ export class FlagsAppElement extends CrLitElement {
      // <if expr="not is_ios">
      loadTimeData.getString('unavailable'),
      // </if>
@@ -1639,7 +1639,7 @@ index e4ddc108198db..0f47ebda9cdcb 100644
    ];
    protected accessor selectedTabIndex_: number = 0;
  
-@@ -196,9 +197,12 @@ export class FlagsAppElement extends CrLitElement {
+@@ -182,10 +183,13 @@ export class FlagsAppElement extends CrLitElement {
  
    protected accessor defaultFeatures: Feature[] = [];
    protected accessor nonDefaultFeatures: Feature[] = [];
@@ -1648,11 +1648,12 @@ index e4ddc108198db..0f47ebda9cdcb 100644
    protected accessor searching: boolean = false;
    protected accessor needsRestart: boolean = false;
    protected accessor importError: string = '';
+   protected accessor toastMessage_: string = '';
 +  private onlyCromiteFlags: boolean = false;
    protected accessor webuiRoundedIconsEnabled_: boolean =
        loadTimeData.getBoolean('webuiRoundedIconsEnabled');
  
-@@ -230,6 +234,11 @@ export class FlagsAppElement extends CrLitElement {
+@@ -217,6 +221,11 @@ export class FlagsAppElement extends CrLitElement {
    override connectedCallback() {
      super.connectedCallback();
  
@@ -1664,7 +1665,7 @@ index e4ddc108198db..0f47ebda9cdcb 100644
      // <if expr="not is_ios">
      const pathname = new URL(window.location.href).pathname;
      this.isFlagsDeprecatedUrl_ =
-@@ -302,10 +311,25 @@ export class FlagsAppElement extends CrLitElement {
+@@ -289,10 +298,25 @@ export class FlagsAppElement extends CrLitElement {
      if (changedPrivateProperties.has('data')) {
        const defaultFeatures: Feature[] = [];
        const nonDefaultFeatures: Feature[] = [];
@@ -1795,7 +1796,7 @@ index 3d5db77737297..c0c56a573939d 100644
  
      return '';
 diff --git a/components/webui/flags/resources/flags_browser_proxy.ts b/components/webui/flags/resources/flags_browser_proxy.ts
-index d30afbd28f115..49cf16b388248 100644
+index e2d2e87b43951..eab8f461f2932 100644
 --- a/components/webui/flags/resources/flags_browser_proxy.ts
 +++ b/components/webui/flags/resources/flags_browser_proxy.ts
 @@ -16,6 +16,11 @@ export interface Feature {
@@ -2338,4 +2339,3 @@ index da93c9ce930ae..40a7a819d7a6b 100644
  #endif  // UI_BASE_UI_BASE_FEATURES_H_
 -- 
 2.53.0
-
